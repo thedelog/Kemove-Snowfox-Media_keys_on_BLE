@@ -302,5 +302,13 @@ void ble_custom_send_keyboard(report_keyboard_t *report) {
 }
 
 void ble_custom_send_mouse(report_mouse_t *report) {}
-void ble_custom_send_consumer(uint16_t usage) {}
-
+void ble_custom_send_consumer(uint16_t usage) {
+    // Send consumer control (media keys) over Bluetooth
+    // Protocol: AT+HID=\3 followed by 2-byte usage code (little-endian)
+    uint8_t report[2];
+    report[0] = (uint8_t)(usage & 0xFF);        // Low byte
+    report[1] = (uint8_t)((usage >> 8) & 0xFF); // High byte
+    
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 3 for consumer control
+    sdWrite(&SD1, report, sizeof(report));
+}

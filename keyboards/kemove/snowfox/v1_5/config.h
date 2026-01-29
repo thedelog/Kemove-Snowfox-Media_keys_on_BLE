@@ -79,7 +79,7 @@
  *
  */
 #define FORCE_NKRO
-
+#define USB_POLLING_INTERVAL_MS 10
 /*
  * Magic Key Options
  *
