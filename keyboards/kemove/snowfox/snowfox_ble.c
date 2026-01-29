@@ -309,6 +309,6 @@ void ble_custom_send_consumer(uint16_t usage) {
     report[0] = (uint8_t)(usage & 0xFF);        // Low byte
     report[1] = (uint8_t)((usage >> 8) & 0xFF); // High byte
     
-    sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 3 for consumer control
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 2 for consumer control
     sdWrite(&SD1, report, sizeof(report));
 }
