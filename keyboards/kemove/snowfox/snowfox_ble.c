@@ -304,33 +304,17 @@ void ble_custom_send_keyboard(report_keyboard_t *report) {
 void ble_custom_send_mouse(report_mouse_t *report) {}
 
 void ble_custom_send_consumer(uint16_t usage) {
-    // Send consumer control (media keys) over Bluetooth
-    // Protocol: AT+HID=\2 followed by 2-byte usage code (little-endian)
     uint8_t report[2];
     
-    if (usage) {
-        // Key press - send the usage code
-        report[0] = (uint8_t)(usage & 0xFF);        // Low byte
-        report[1] = (uint8_t)((usage >> 8) & 0xFF); // High byte
-        
-        sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 2 for consumer control
-        sdWrite(&SD1, report, sizeof(report));
-        
-        // Small delay to ensure press is registered
-        wait_ms(10);
-        
-        // Key release - send zeros
-        report[0] = 0x00;
-        report[1] = 0x00;
-        
-        sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 2 for consumer control
-        sdWrite(&SD1, report, sizeof(report));
-    } else {
-        // Already a release (usage = 0), just send zeros
-        report[0] = 0x00;
-        report[1] = 0x00;
-        
-        sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);  // Report ID 2 for consumer control
-        sdWrite(&SD1, report, sizeof(report));
-    }
+    // Send press
+    report[0] = (uint8_t)(usage & 0xFF);
+    report[1] = (uint8_t)((usage >> 8) & 0xFF);
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);
+    sdWrite(&SD1, report, sizeof(report));
+    
+    // Send release immediately (no delay)
+    report[0] = 0x00;
+    report[1] = 0x00;
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);
+    sdWrite(&SD1, report, sizeof(report));
 }
