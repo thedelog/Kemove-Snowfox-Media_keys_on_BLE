@@ -305,16 +305,38 @@ void ble_custom_send_mouse(report_mouse_t *report) {}
 
 void ble_custom_send_consumer(uint16_t usage) {
     uint8_t report[2];
-    
+
     // Send press
     report[0] = (uint8_t)(usage & 0xFF);
     report[1] = (uint8_t)((usage >> 8) & 0xFF);
     sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);
     sdWrite(&SD1, report, sizeof(report));
-    
+
     // Send release immediately (no delay)
     report[0] = 0x00;
     report[1] = 0x00;
     sdWrite(&SD1, (uint8_t*) "AT+HID=\2", 8);
     sdWrite(&SD1, report, sizeof(report));
+}
+
+
+void ble_custom_send_system(uint16_t usage) {
+    uint8_t report[1];
+
+    // Both Power and Sleep keys will trigger Sleep over BLE
+    // because your BLE hardware treats 0x81 and 0x83 as Sleep.
+    if (usage == 0x81 || usage == 0x82) {
+        report[0] = 0x81;
+    } else {
+        report[0] = 0x00;
+    }
+
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\3", 8);
+    sdWrite(&SD1, report, 1);
+
+    chThdSleepMilliseconds(30);
+
+    report[0] = 0x00;
+    sdWrite(&SD1, (uint8_t*) "AT+HID=\3", 8);
+    sdWrite(&SD1, report, 1);
 }

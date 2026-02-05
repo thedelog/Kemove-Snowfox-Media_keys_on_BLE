@@ -2,7 +2,7 @@
 #include "print.h"
 #include "snowfox_ble.h"
 #include "string.h"
-
+extern void ble_custom_send_system(uint16_t usage);
 thread_t *led_thread = NULL;
 
 SerialConfig serialCfg = {
@@ -43,6 +43,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 bool OVERRIDE process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
+            // --- ADDED SYSTEM KEYS FOR BLE PARITY ---
+            case KC_PWR:
+                ble_custom_send_system(0x81); // Send BLE System Power
+                // We do NOT return false here.
+                // Returning nothing lets it fall through to 'true' so USB works too.
+                break;
+            case KC_SLEP:
+                ble_custom_send_system(0x82); // Send BLE System Sleep
+                break;
             case SNOWFOX_LED_ON:
                 snowfox_led_on();
                 return false;
